@@ -1,0 +1,121 @@
+@model MektupProje.Models.ViewModels.LetterStepVm
+@{
+    ViewData["Title"] = "Mektup";
+}
+
+<div class="topbar">
+    <form method="post" asp-controller="Hesap" asp-action="Cikis">
+        <button type="submit" class="btn ghost small">Çıkış</button>
+    </form>
+</div>
+
+<div class="card">
+    <h1>Ses Kaydı ve Mektup</h1>
+
+    <div class="recorder">
+        <p class="muted">1 dakika ses kaydı al. Başlatınca 60 saniye sonra otomatik durur.</p>
+        <div class="actions">
+            <button class="btn" type="button" id="btnStart">Kaydı Başlat</button>
+            <button class="btn ghost" type="button" id="btnStop" disabled>Bitir</button>
+        </div>
+        <p id="recStatus" class="muted"></p>
+        <audio id="player" controls style="width:100%; display:none"></audio>
+    </div>
+
+    <hr class="sep"/>
+
+    <form method="post">
+        <div class="field">
+            <label>Mektubun</label>
+            <textarea asp-for="Text" rows="10" placeholder="Gelecekteki kendine bir şeyler yaz..."></textarea>
+            <span class="err" asp-validation-for="Text"></span>
+        </div>
+
+        <div class="err" asp-validation-summary="All"></div>
+
+        <div class="actions">
+            <button class="btn" type="submit">Kaydet</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+      // MediaRecorder ile 60sn kayıt -> /Sihirbaz/SesYukle
+      (function(){
+        const startBtn = document.getElementById("btnStart");
+        const stopBtn  = document.getElementById("btnStop");
+        const statusEl = document.getElementById("recStatus");
+        const player   = document.getElementById("player");
+
+        let mediaRecorder;
+        let chunks = [];
+        let stopTimer;
+
+        function setStatus(t){ if(statusEl) statusEl.textContent = t; }
+
+        async function start(){
+          chunks = [];
+          setStatus("Mikrofon izni isteniyor...");
+          const stream = await navigator.mediaDevices.getUserMedia({ audio:true });
+          mediaRecorder = new MediaRecorder(stream);
+
+          mediaRecorder.ondataavailable = e => { if(e.data && e.data.size>0) chunks.push(e.data); };
+          mediaRecorder.onstop = async () => {
+            clearTimeout(stopTimer);
+            setStatus("Yükleniyor...");
+            const blob = new Blob(chunks, { type: mediaRecorder.mimeType || "audio/webm" });
+
+            // önizleme
+            player.style.display = "block";
+            player.src = URL.createObjectURL(blob);
+
+            const fd = new FormData();
+            fd.append("audio", blob, "ses.webm");
+
+            const res = await fetch("/Sihirbaz/SesYukle", { method:"POST", body: fd });
+            const json = await res.json().catch(()=>null);
+
+            if(!res.ok){
+              setStatus("Ses yükleme başarısız.");
+              console.error(json);
+              return;
+            }
+            setStatus("Ses kaydı yüklendi. Şimdi mektubunu yazıp Kaydet'e bas.");
+          };
+
+          mediaRecorder.start();
+          startBtn.disabled = true;
+          stopBtn.disabled = false;
+          setStatus("Kayıt başladı. 60 saniye sonra otomatik duracak...");
+
+          stopTimer = setTimeout(() => {
+            if(mediaRecorder && mediaRecorder.state === "recording"){
+              mediaRecorder.stop();
+              stream.getTracks().forEach(t=>t.stop());
+            }
+          }, 60000);
+        }
+
+        function stop(){
+          if(!mediaRecorder) return;
+          if(mediaRecorder.state === "recording"){
+            mediaRecorder.stop();
+            try{
+              mediaRecorder.stream.getTracks().forEach(t=>t.stop());
+            }catch{}
+          }
+          startBtn.disabled = false;
+          stopBtn.disabled = true;
+          setStatus("Kaydedildi, yükleme başlıyor...");
+        }
+
+        startBtn?.addEventListener("click", ()=> start().catch(err=>{
+          console.error(err);
+          setStatus("Mikrofon izni verilmedi ya da cihaz bulunamadı.");
+        }));
+        stopBtn?.addEventListener("click", stop);
+      })();
+    </script>
+}

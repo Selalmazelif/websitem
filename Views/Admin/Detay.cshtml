@@ -1,0 +1,36 @@
+@model MektupProje.Models.Letter
+@{
+    ViewData["Title"] = "Detay";
+}
+<div class="topbar">
+    <a class="btn ghost small" asp-action="Index">Geri</a>
+</div>
+
+<div class="card">
+    <h1>Mektup Detayı</h1>
+
+    <p><b>ID:</b> @Model.Id</p>
+    <p><b>İletişim:</b> @Model.ContactValue (@(Model.ContactType == MektupProje.Models.ContactType.Email ? "E-posta" : "Telefon"))</p>
+    <p><b>Oluşturma:</b> @Model.CreatedAtUtc.ToLocalTime()</p>
+    <p><b>Gönderim:</b> @Model.DeliverAtUtc.ToLocalTime()</p>
+    <p><b>Durum:</b> @Model.Status</p>
+    @if (!string.IsNullOrWhiteSpace(Model.LastError))
+    {
+        <p class="err"><b>Hata:</b> @Model.LastError</p>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(Model.PhotoPath))
+    {
+        <p><b>Fotoğraf:</b></p>
+        <img src="@Model.PhotoPath" style="max-width:460px;border-radius:16px" />
+    }
+
+    <p><b>Mektup:</b></p>
+    <pre class="pre">@Model.Text</pre>
+
+    @if (!string.IsNullOrWhiteSpace(Model.AudioPath))
+    {
+        <p><b>Ses:</b></p>
+        <audio controls src="@Model.AudioPath" style="width:100%"></audio>
+    }
+</div>

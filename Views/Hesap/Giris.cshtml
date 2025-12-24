@@ -1,0 +1,32 @@
+@model MektupProje.Models.ViewModels.LoginVm
+@{
+    ViewData["Title"] = "Giriş";
+}
+<div class="card">
+    <h1>Giriş</h1>
+
+    <form method="post" asp-action="Giris">
+        <div class="field">
+            <label>E-posta</label>
+            <input asp-for="Email" autocomplete="email" />
+            <span class="err" asp-validation-for="Email"></span>
+        </div>
+
+        <div class="field">
+            <label>Şifre</label>
+            <input asp-for="Password" autocomplete="current-password" />
+            <span class="err" asp-validation-for="Password"></span>
+        </div>
+
+        <div class="err" asp-validation-summary="All"></div>
+
+        <div class="actions">
+            <button class="btn" type="submit">Giriş Yap</button>
+            <a class="btn ghost" asp-action="Kayit">Kayıt Ol</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

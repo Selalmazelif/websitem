@@ -1,0 +1,42 @@
+@model List<MektupProje.Models.Letter>
+@{
+    ViewData["Title"] = "Admin";
+}
+<div class="topbar">
+    <form method="post" asp-controller="Hesap" asp-action="Cikis">
+        <button type="submit" class="btn ghost small">Çıkış</button>
+    </form>
+</div>
+
+<div class="card">
+    <h1>Admin Paneli</h1>
+    <p class="muted">Tüm mektuplar burada.</p>
+
+    <div class="tableWrap">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th>Tarih</th>
+            <th>İletişim</th>
+            <th>Tür</th>
+            <th>Gönderim</th>
+            <th>Durum</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+        @foreach (var x in Model)
+        {
+          <tr>
+            <td>@x.CreatedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
+            <td>@x.ContactValue</td>
+            <td>@(x.ContactType == MektupProje.Models.ContactType.Email ? "E-posta" : "Telefon")</td>
+            <td>@x.DeliverAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
+            <td>@x.Status</td>
+            <td><a class="link" asp-action="Detay" asp-route-id="@x.Id">Detay</a></td>
+          </tr>
+        }
+        </tbody>
+      </table>
+    </div>
+</div>

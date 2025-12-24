@@ -1,0 +1,14 @@
+@{
+    ViewData["Title"] = "Kaydedildi";
+}
+<div class="card">
+    <h1>Kaydedildi</h1>
+    <p class="muted">Mektubun kuyruğa alındı. Zamanı gelince seçtiğin yere gönderilecek.</p>
+
+    <div class="actions">
+        <a class="btn" asp-controller="Sihirbaz" asp-action="Iletisim">Yeni mektup yaz</a>
+        <form method="post" asp-controller="Hesap" asp-action="Cikis" style="display:inline">
+            <button class="btn ghost" type="submit">Giriş ekranına dön</button>
+        </form>
+    </div>
+</div>

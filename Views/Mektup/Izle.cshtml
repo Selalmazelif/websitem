@@ -1,0 +1,50 @@
+﻿@model MektupProje.Models.Letter
+@using System.Text.Encodings.Web
+@{
+    ViewData["Title"] = "Mektubun";
+    var safeText = JavaScriptEncoder.Default.Encode(Model.Text ?? "");
+}
+
+<div class="card">
+    <h1>Geleceğe Mektubun</h1>
+
+    @if (!string.IsNullOrWhiteSpace(Model.PhotoPath))
+    {
+        <img src="@Model.PhotoPath" style="max-width:420px;border-radius:16px" />
+    }
+
+    @if (!string.IsNullOrWhiteSpace(Model.VideoPath))
+    {
+        <h3>Video</h3>
+        <video controls style="max-width:520px;border-radius:16px">
+            <source src="@Model.VideoPath" type="video/mp4" />
+        </video>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(Model.AudioPath))
+    {
+        <h3>Ses</h3>
+        <audio controls>
+            <source src="@Model.AudioPath" />
+        </audio>
+    }
+
+    <hr />
+
+    <pre style="white-space:pre-wrap">@Model.Text</pre>
+
+    <div class="actions">
+        <button class="btn" type="button" id="btnOku">Ekrandan Oku</button>
+    </div>
+</div>
+
+<script>
+    document.getElementById("btnOku")?.addEventListener("click", () => {
+      const t = "@safeText".trim();
+      if (!t) return;
+      const u = new SpeechSynthesisUtterance(t);
+      u.lang = "tr-TR";
+      speechSynthesis.cancel();
+      speechSynthesis.speak(u);
+    });
+</script>

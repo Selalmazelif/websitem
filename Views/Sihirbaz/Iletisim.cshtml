@@ -1,0 +1,63 @@
+@model MektupProje.Models.ViewModels.ContactStepVm
+@{
+    ViewData["Title"] = "İletişim";
+}
+
+<div class="topbar">
+    <form method="post" asp-controller="Hesap" asp-action="Cikis">
+        <button type="submit" class="btn ghost small">Çıkış</button>
+    </form>
+</div>
+
+<div class="card">
+    <h1>İletişim</h1>
+
+    <p class="muted">
+        Mektup, giriş yaptığın hesabın e-posta adresine gönderilecektir.
+    </p>
+
+    <form method="post" enctype="multipart/form-data">
+        <div class="field">
+            <label>Fotoğraf Yükle (isteğe bağlı)</label>
+            <input asp-for="Photo" type="file" accept="image/*" />
+        </div>
+
+        <div class="grid2">
+            <div class="field">
+                <label>Kaç yıl sonra?</label>
+                <input asp-for="YearsLater" type="number" min="1" max="120" />
+                <span class="err" asp-validation-for="YearsLater"></span>
+            </div>
+
+            <div class="field check">
+                <label class="checkline">
+                    <input asp-for="DemoOneMinute" type="checkbox" />
+                    Demo: 1 dakika sonra gönder
+                </label>
+            </div>
+        </div>
+
+        <div class="err" asp-validation-summary="All"></div>
+
+        <div class="actions">
+            <button class="btn" type="submit">Devam</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function(){
+          const demo = document.querySelector('input[name="DemoOneMinute"]');
+          const years = document.querySelector('input[name="YearsLater"]');
+          function sync(){
+            if(!demo || !years) return;
+            years.disabled = demo.checked;
+            if(demo.checked) years.value = "";
+          }
+          demo?.addEventListener('change', sync);
+          sync();
+        })();
+    </script>
+}
